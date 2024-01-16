@@ -1,113 +1,116 @@
-import Image from 'next/image'
+"use client"
+import { ChangeEvent, FormEvent, useEffect, useState } from "react"
+import { database } from "../../service/firebase"
+
+type Contato = {
+  Instaladas: string,
+  Canceladas: string,
+  OS: string,
+}
 
 export default function Home() {
+
+  const chave = "-NoB1VUpgAZpp6ZlW1Jc"
+
+  const [instaladas , setInstaladas] = useState("00")
+  const [canceladas , setCanceladas] = useState("00")
+  const [os , setOs] = useState("00")
+
+  const [formData, setFormData] = useState({
+    instaladas: '00',
+    canceladas: '00',
+    os: '00',
+  })
+
+  const[atualizando , setAtualizando] = useState(false)
+
+// Atualizar dados 
+
+useEffect(() => {
+  const refContatos = database.ref('Valores');
+  refContatos.on('value', (resultado) => {
+    const resultadoContatos = Object.entries<Contato>(resultado.val() ?? {}).map(([chave, valor]) => ({
+      chave,
+      Instaladas: setInstaladas(valor.Instaladas),
+      Canceladas: setCanceladas(valor.Canceladas),
+      OS: setOs(valor.OS),
+    }));
+  });
+}, []);
+
+// Editar
+
+function atualizarcontato(){
+ const ref = database.ref('Valores')
+ const dados = {
+  'Instaladas': formData.instaladas,
+  'Canceladas': formData.canceladas,
+  'OS': formData.os,
+ }
+ ref.child(chave).update(dados)
+setAtualizando(false)
+}
+
+
+function editar(event : FormEvent){
+  setAtualizando(!atualizando)
+  event.preventDefault()
+}
+
+const handleChange = (e : ChangeEvent<HTMLInputElement>) => {
+  const { name , value  } = e.target;
+  setFormData((prevData) => ({ ...prevData, [name]: value }));
+};
+
+const handleSave = (e :FormEvent) => {
+  e.preventDefault();
+  atualizarcontato()
+  // Adicione lógica adicional de salvamento aqui, como enviar os dados para um servidor
+};
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main className="h-screen justify-center items-center text-center flex bg-sky-800 relative">
+      {atualizando ? 
+        <form className="absolute z-50 flex flex-col gap-9 bg-slate-100 p-12 rounded-xl" onSubmit={handleSave}>
+          <button className="absolute top-3 right-3 text-red-600 font-bold" onClick={editar}>X</button>
+          <input
+            name="instaladas"
+            placeholder="Instaladas"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            value={formData.instaladas}
+            onChange={handleChange}
+          />
+          <input
+            name="canceladas"
+            placeholder="Canceladas"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            value={formData.canceladas}
+            onChange={handleChange}
+          />
+          <input
+            name="os"
+            placeholder="OS"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            value={formData.os}
+            onChange={handleChange}
+          />
+            <button className="bg-green-600 rounded-xl text-white font-bold"  type="submit">Salvar</button>
+        </form> : <button className="absolute top-4 right-4 bg-amber-400 text-green-950 font-bold p-3 rounded-full" onClick={editar}>Editar</button>
+        }
+        <div className="flex space-x-10 ">
+          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
+            <h2 className="text-8xl">Instaladas</h2>
+            <p className="text-7xl">{instaladas}</p>
+          </div>
+          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
+            <h2 className="text-8xl">Canceladas</h2>
+            <p className="text-7xl">{canceladas}</p>
+          </div>
+          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
+            <h2 className="text-8xl">OS</h2>
+            <p className="text-7xl">{os}</p>
+          </div>
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
     </main>
   )
 }
