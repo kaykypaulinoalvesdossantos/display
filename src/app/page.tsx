@@ -1,6 +1,11 @@
 "use client"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 import { database } from "../../service/firebase"
+import  inst from '@/../public/Group 14.svg'
+import  cans from '@/../public/Group 15.svg'
+import  oss from '@/../public/Group 16.svg'
+import  edit from '@/../public/Group 17.svg'
+import Image from "next/image"
 
 type Contato = {
   Instaladas: string,
@@ -9,7 +14,6 @@ type Contato = {
 }
 
 export default function Home() {
-
   const chave = "-NoB1VUpgAZpp6ZlW1Jc"
 
   const [instaladas , setInstaladas] = useState("00")
@@ -65,51 +69,62 @@ const handleChange = (e : ChangeEvent<HTMLInputElement>) => {
 const handleSave = (e :FormEvent) => {
   e.preventDefault();
   atualizarcontato()
-  // Adicione lógica adicional de salvamento aqui, como enviar os dados para um servidor
 };
 
   return (
-    <main className="h-screen justify-center items-center text-center flex bg-sky-800 relative">
+    <main className=" bg-[#E8E8E8]relative">
       {atualizando ? 
-        <form className="absolute z-50 flex flex-col gap-9 bg-slate-100 p-12 rounded-xl" onSubmit={handleSave}>
+        <form className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col gap-9 bg-slate-100 p-12 rounded-xl" onSubmit={handleSave}>
           <button className="absolute top-3 right-3 text-red-600 font-bold" onClick={editar}>X</button>
           <input
             name="instaladas"
             placeholder="Instaladas"
-            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950 outline-none"
             value={formData.instaladas}
             onChange={handleChange}
           />
           <input
             name="canceladas"
             placeholder="Canceladas"
-            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950 outline-none"
             value={formData.canceladas}
             onChange={handleChange}
           />
           <input
             name="os"
             placeholder="OS"
-            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950"
+            className="text-black py-2 text-center bg-slate-100 border-b-2 border-slate-950 outline-none"
             value={formData.os}
             onChange={handleChange}
           />
             <button className="bg-green-600 rounded-xl text-white font-bold"  type="submit">Salvar</button>
-        </form> : <button className="absolute top-4 right-4 bg-amber-400 text-green-950 font-bold p-3 rounded-full" onClick={editar}>Editar</button>
+        </form> : <button className="absolute top-4 right-4 bg-[#FFC700] text-[#5F4A00] font-bold p-3 rounded-2xl flex items-center gap-4" onClick={editar}>EDITAR<Image src={edit} alt={""} className="w-8" /></button>
         }
-        <div className="flex space-x-10 ">
-          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
-            <h2 className="text-8xl">Instaladas</h2>
-            <p className="text-7xl">{instaladas}</p>
+        <div className="flex gap-28 justify-center h-screen items-center max-md:gap-20 max-[650px]:gap-14 max-[660px]:hidden">
+          <div className=" text-white flex flex-col justify-center items-center relative ">
+            <Image src={inst} alt={""}  />
+            <div className=" absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center flex-col gap-6 ">
+              <h2 className="text-4xl font-bold text-[#335F28] max-md:text-3xl ">Instaladas</h2>
+              <p className="text-9xl font-bold text-[#335F28] max-md:text-7xl ">{instaladas}</p>
+            </div>
           </div>
-          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
-            <h2 className="text-8xl">Canceladas</h2>
-            <p className="text-7xl">{canceladas}</p>
+
+          <div className=" text-white flex flex-col justify-center items-center relative max-[660px]:hidden">
+            <Image src={cans} alt={""}  />
+            <div className=" absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center flex-col gap-6 ">
+              <h2 className="text-4xl font-bold text-[#6C1111] max-md:text-3xl ">Canceladas</h2>
+              <p className="text-9xl font-bold text-[#6C1111] max-md:text-7xl ">{canceladas}</p>
+            </div>
           </div>
-          <div className="bg-black text-white p-5 flex flex-col justify-center items-center gap-8 rounded-xl drop-shadow-2xl">
-            <h2 className="text-8xl">OS</h2>
-            <p className="text-7xl">{os}</p>
+
+          <div className=" text-white flex flex-col justify-center items-center relative max-[660px]:hidden">
+            <Image src={oss} alt={""}  />
+            <div className=" absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex items-center justify-center flex-col gap-6 ">
+              <h2 className="text-4xl font-bold text-[#6C6314] max-md:text-3xl ">0.S</h2>
+              <p className="text-9xl font-bold text-[#6C6314] max-md:text-7xl">{os}</p>
+            </div>
           </div>
+         
         </div>
     </main>
   )
